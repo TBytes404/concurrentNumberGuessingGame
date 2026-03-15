@@ -1,37 +1,42 @@
-import random
+from aioconsole import ainput
+
+
 class Round:
-    def __init__(self,  secret_num, difficulty=1):
+    def __init__(self, secret_num, difficulty=1):
         self.LOWER_BOUND = 0
-        self.UPPER_BOUND = 100*difficulty
+        self.UPPER_BOUND = 100 * difficulty
         self.DIFFICULTY = difficulty
         self.MAX_GUESSES = 9
         self.guesses = 0
         self.SECRET_NUM = secret_num
 
-    def is_in_range(self, guess):
+    def is_in_range(self, guess: int):
         return guess >= self.LOWER_BOUND and guess <= self.UPPER_BOUND
 
-    def get_guess(self):
+    async def get_guess(self):
         guess = -1
         while not self.is_in_range(guess):
-            guess_input = input(
-                f"Guess a number between {self.LOWER_BOUND} and {self.UPPER_BOUND} ({self.MAX_GUESSES-self.guesses} guesses remaining):"
+            guess_input = await ainput(
+                f"Guess a number between {self.LOWER_BOUND} and {self.UPPER_BOUND} ({self.MAX_GUESSES - self.guesses} guesses remaining):"
             )
             if not guess_input.isnumeric():
                 print("Enter a valid number")
                 continue
             guess = int(guess_input)
             if not self.is_in_range(guess):
-                print(f"Your number must be between {self.LOWER_BOUND} and {self.UPPER_BOUND}")
+                print(
+                    f"Your number must be between {self.LOWER_BOUND} and {self.UPPER_BOUND}"
+                )
         return guess
 
-    '''
-    return values:
-    "lower" -> the argument is HIGHER than the number to guess
-    "higher" -> the argument is LOWER than the number to guess
-    "correct" -> the argument is equal to the correct number
-    '''
-    def get_guess_feedback(self, guess):
+    def get_guess_feedback(self, guess: int):
+        """
+        return values:
+        "lower" -> the argument is HIGHER than the number to guess
+        "higher" -> the argument is LOWER than the number to guess
+        "correct" -> the argument is equal to the correct number
+        """
+
         if guess == self.SECRET_NUM:
             return "correct"
         elif guess < self.SECRET_NUM:
@@ -39,7 +44,7 @@ class Round:
         elif guess > self.SECRET_NUM:
             return "lower"
 
-    def run_round(self):
+    async def run_round(self):
         print("Welcome to the game!")
         print("Try to guess the secret number!")
         while True:
@@ -47,12 +52,14 @@ class Round:
                 print("You have run out of guesses, better luck next time")
                 return
 
-            guess = self.get_guess()
+            guess = await self.get_guess()
             self.guesses += 1
             feedback = self.get_guess_feedback(guess)
             if feedback == "correct":
                 print("Correct!")
-                print(f"You have guessed the number {self.SECRET_NUM} in {self.guesses} guesses")
+                print(
+                    f"You have guessed the number {self.SECRET_NUM} in {self.guesses} guesses"
+                )
                 return
             elif feedback == "higher":
                 print(f"The secret number is higher than {guess}")
